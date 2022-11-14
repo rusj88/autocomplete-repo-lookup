@@ -67,19 +67,50 @@ function output(arr) {
 function addToList(arrItem) {
   const fragment = document.createDocumentFragment();
   const listItem = document.createElement("div");
-  listItem.classList.add("flex-container");
+  listItem.classList.add("list-item");
+  listItem.setAttribute("draggable", "true");
   const line = `
     <ul>
       <li>Name: ${arrItem.name}</li>
       <li>Owner: ${arrItem.owner.login}</li>
       <li>Stars: ${arrItem.watchers_count}</li>
     </ul>
-  <div onclick="this.closest('div.flex-container').remove()"><i class="fas fa-trash"></i></div>
+  <div onclick="this.closest('div.list-item').remove()"><i class="fas fa-trash"></i></div>
 `;
   listItem.innerHTML = line;
   fragment.appendChild(listItem);
   myList.appendChild(fragment);
 }
+
+const listItem = myList.querySelectorAll(".list-item");
+
+myList.addEventListener(`dragstart`, (evt) => {
+  evt.target.classList.add(`selected`);
+});
+
+myList.addEventListener(`dragend`, (evt) => {
+  evt.target.classList.remove(`selected`);
+});
+
+myList.addEventListener(`dragover`, (evt) => {
+  evt.preventDefault();
+  const activeElement = myList.querySelector(`.selected`);
+  const currentElement = evt.target;
+  const isMoveable =
+    activeElement !== currentElement &&
+    currentElement.classList.contains(`list-item`);
+
+  if (!isMoveable) {
+    return;
+  }
+
+  const nextElement =
+    currentElement === activeElement.nextElementSibling
+      ? currentElement.nextElementSibling
+      : currentElement;
+
+  myList.insertBefore(activeElement, nextElement);
+});
 
 function clear() {
   search.value = "";
